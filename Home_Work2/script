@@ -1,0 +1,11 @@
+#!/bin/bash
+
+echo "enter your name"
+	read Name
+if [ $Name = $USER ];
+then
+	echo "you are real user $USER :"
+else 
+	echo "you are not real User "
+
+fi
