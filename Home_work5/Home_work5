@@ -112,26 +112,22 @@
 
 #echo "task 10"
 
-STATE_FILE="/tmp/current_state.txt"
-
-echo "Enter the name og directory"
-read directory
-
+watch_dir="/home/andrey/home_work/Home_work5/watch"
+echo "Переріряю наяність нових файлів в .../watch з інтервалос 3секунди " 
 while true; do
-	files_dir=$(ls "directory")
-	new_files=$(comm -23 <(echo "$files_dir")<(cat "$STATE_FILE"))
-	if [ -d "$directory" ]; then
-		for file in "$directory"/*; do
-			if [ -f "$file" ]; then 
-			mv "$file" "${file}".back
-			echo "file $file was renamed to ${file}.back"
-			fi
-		done
-	else 
-		echo "no"
-	fi
-	sleep 3	
+	for file in "$watch_dir"/*; do  
+	    if [ -f "$file" ] && [[ "$file" != *.back ]]; then
+
+            echo "Обнаружен новый файл: $file"
+            cat "$file"
+
+            mv "$file" "$file.back"
+            echo "Файл $file переименован в $file.back"
+		
+        fi
+
+    done
+
+    sleep 3
 done
-
-
-
+	
