@@ -1,0 +1,137 @@
+#!/bin/bash +x 
+
+
+
+#echo "Hello, World!"
+#echo "task2"
+#echo "What is your name ?"
+#read name
+#echo "Hi $name!"
+
+#echo "task 3"
+
+#echo "write the name of file, and I'll check it, if it exist in this directory"
+#read file_name
+
+#if [ -f $file_name ]; then
+#	echo "Yes. File exist in this directory"
+#else 
+#	echo "No file i'snt in this directory" 
+
+#fi
+
+#echo "task 4"
+#count=1
+#until [ $count -gt 10 ]; do
+#	echo "Number: $count"
+#	((count++))
+#done
+
+#echo "task 5"
+#echo "Enter name of file/ for move him"
+#read first_path
+#real_pass=$(realpath "$first_path")
+
+#echo "Absolut path of file $real_pass"
+
+#echo "Enter pleace to move /..../..../ " 
+#read move_plase
+#echo "move plase $move_plase"
+#move=$(mv $first_path $move_plase)  
+#echo "yor file moved to $move_plase"
+
+#echo "task 6"
+
+#read -p "Enter 3 words or more ..." input
+#words=($input)
+
+#word_count=${#words[@]}
+#echo "count of words $word_count"
+#echo "rewers words ..."
+#for (( i=word_count-1; i>=0; i-- ))
+#do 
+#	echo -n "${words[i]}, "
+#done
+
+#echo "task 7"
+#count_strok (){
+
+#if [[ -f "$filename" ]];then 
+#	count=$(wc -l "$filename")
+#	echo "this file $count has linse" 
+#else 
+#	echo "It is not file " 
+#fi
+#}
+#read -p "Enter name of the file " filename 
+#count_strok "$filename"
+ 
+
+#echo "task 8"
+#fruits=(apple pineapple lemon watermalon)
+
+#echo ${#fruits[@]} elements 
+
+#for item in "${fruits[@]}";do
+#	echo $item
+#done
+
+#for fruits 
+
+
+
+#echo "task 9"
+
+#echo "Enter the name of the file and I check it on mistakes " 
+#read file_name
+
+# Проверка на пустое имя файла
+#if [[ -z "$file_name" ]]; then
+#    echo "Ошибка: имя файла не введено."
+#    exit 1
+#fi
+
+#read_file(){
+#        local file_name=$1
+#        if [[ -f "$file_name" ]]; then
+#                echo "This is a file: $file_name" 
+#                echo "File exists: "
+#                cat "$file_name"
+#                return 0 
+#        else
+#                echo "File $file_name does not exist."
+#                return 1
+#        fi
+#}
+
+#if ! read_file "$file_name"; then
+#        echo "Error: file does not exist. Stopping the script." > error.log
+#        exit 1
+#fi
+
+
+#echo "task 10"
+
+STATE_FILE="/tmp/current_state.txt"
+
+echo "Enter the name og directory"
+read directory
+
+while true; do
+	files_dir=$(ls "directory")
+	new_files=$(comm -23 <(echo "$files_dir")<(cat "$STATE_FILE"))
+	if [ -d "$directory" ]; then
+		for file in "$directory"/*; do
+			if [ -f "$file" ]; then 
+			mv "$file" "${file}".back
+			echo "file $file was renamed to ${file}.back"
+			fi
+		done
+	else 
+		echo "no"
+	fi
+	sleep 3	
+done
+
+
+

@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+
+count=1
+while true; do
+	count=1
+	while [ $count -le 4 ]; do
+	        echo " POvtor  $count "
+        	count=$((count+1))
+		for i in {1..3}; do
+		echo " chislo $1"
+		done
+	done
+	echo "hi $cout "
+	sleep 1
+done
