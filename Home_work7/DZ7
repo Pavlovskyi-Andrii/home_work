@@ -1,0 +1,25 @@
+#!/bin/bash
+#
+
+#useradd -m dev1
+#useradd -m dev2
+#useradd -m dev3
+
+#echo "Створили 3 юзера"
+
+#groupadd -aG developer dev1
+#groupadd -aG developer dev2
+#groupadd -aG webmasters dev3 
+
+#for user in dev1 dev2 dev3; do
+#    usermod -g developers "$user"
+#done
+#!/bin/bash
+#
+disc_log=${1}
+disc_now=$(df / | grep / | awk '{ print $5 } ' | sed 's/%//g')
+echo "$disc_now"
+echo "$disc_log"
+if [[ $disc_now -gt $disc_log ]]; then
+        echo "used space disc more than $disc_log  " >> /var/log/disc.log
+fi
