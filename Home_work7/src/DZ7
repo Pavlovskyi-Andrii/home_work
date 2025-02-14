@@ -1,21 +1,53 @@
 #!/bin/bash
 #
 
-#useradd -m dev1
-#useradd -m dev2
-#useradd -m dev3
+# Створення користувачів
+sudo useradd -m dev1
+sudo useradd -m dev2
+sudo useradd -m dev3
 
-#echo "Створили 3 юзера"
+# Створення груп
+sudo groupadd developer
+sudo groupadd webmasters
 
-#groupadd -aG developer dev1
-#groupadd -aG developer dev2
-#groupadd -aG webmasters dev3 
+# Призначення користувачів до груп
+sudo usermod -aG developer dev1
+sudo usermod -aG developer dev2
+sudo usermod -aG webmasters dev3
 
-#for user in dev1 dev2 dev3; do
-#    usermod -g developers "$user"
-#done
-#!/bin/bash
-#
+# Встановлення групи за замовчуванням
+sudo usermod -g developer dev1
+sudo usermod -g developer dev2
+sudo usermod -g webmasters dev3
+
+# Налаштування прав доступу до домашніх каталогів
+sudo chown dev1:developer /home/dev1
+sudo chown dev2:developer /home/dev2
+sudo chown dev3:webmasters /home/dev3
+sudo chmod 700 /home/dev1 /home/dev2 /home/dev3
+
+# Клонування облікового запису користувача
+sudo useradd -m backupdev
+sudo cp -r /home/dev1/. /home/backupdev/
+sudo chown -R backupdev:backupdev /home/backupdev
+
+
+#Налаштування дозволів для спільного проекту:
+sudo mkdir /home/web_project
+sudo chown :developer /home/web_project
+sudo chmod 2775 /home/web_project
+
+#Незмінний файл журналу:
+sudo touch /home/my.log
+sudo chown root:root /home/my.log
+sudo chmod 644 /home/my.log
+sudo chattr +a /home/my.log
+
+
+
+
+
+
 disc_log=${1}
 disc_now=$(df / | grep / | awk '{ print $5 } ' | sed 's/%//g')
 echo "$disc_now"
