@@ -1,0 +1,132 @@
+MYSQL_ROOT_PASSWORD = "1234qwer"
+MYSQL_DB_NAME = "db_vm"
+MYSQL_USER = "db_user"
+MYSQL_PASSWORD = "1234qwer"
+DB_HOST = "192.168.56.70"
+DB_PORT = "3306"
+
+Vagrant.configure("2") do |config|
+  # Увеличиваем ресурсы для всех машин
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = "2048" # 2 ГБ памяти
+    vb.cpus = 2        # 2 CPU
+  end
+
+  # Конфигурация машины для базы данных
+  config.vm.define "db" do |db|
+    db.vm.network "private_network", ip: DB_HOST
+    db.vm.box = "ubuntu/focal64"
+    db.vm.hostname = "db.local"
+    
+    db.ssh.insert_key = false
+
+    db.vm.provision "shell", inline: <<-SHELL
+      echo "vagrant:vagrant" | sudo chpasswd
+      sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+      sudo sed -i 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config
+      sudo systemctl restart ssh
+
+      sudo apt update 
+      sudo apt install -y mysql-server
+
+      sudo debconf-set-selections <<< "mysql-server mysql-server/root_password password #{MYSQL_ROOT_PASSWORD}"
+      sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again password #{MYSQL_ROOT_PASSWORD}"
+
+      # Запускаем MySQL
+      sudo systemctl enable mysql
+      sudo systemctl start mysql
+
+      # Проверяем и создаем базу данных
+      sudo mysql -uroot -p#{MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS #{MYSQL_DB_NAME};"
+
+      # Проверяем и создаем пользователя
+      sudo mysql -uroot -p#{MYSQL_ROOT_PASSWORD} -e "DROP USER IF EXISTS '#{MYSQL_USER}'@'%';"
+      sudo mysql -uroot -p#{MYSQL_ROOT_PASSWORD} -e "CREATE USER '#{MYSQL_USER}'@'%' IDENTIFIED BY '#{MYSQL_PASSWORD}';"
+      sudo mysql -uroot -p#{MYSQL_ROOT_PASSWORD} -e "GRANT ALL PRIVILEGES ON #{MYSQL_DB_NAME}.* TO '#{MYSQL_USER}'@'%';"
+      sudo mysql -uroot -p#{MYSQL_ROOT_PASSWORD} -e "FLUSH PRIVILEGES;"
+
+      echo "Updating MySQL configuration..."
+      sudo sed -i "s/^bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/mysql.conf.d/mysqld.cnf
+      sudo systemctl restart mysql
+    SHELL
+  end
+
+  
+  # Конфигурация машины для приложения
+  config.vm.define "app" do |app|
+    app.vm.box = "ubuntu/focal64"
+    app.vm.hostname = "app.local"
+    app.vm.network "private_network", ip: "192.168.56.60"
+    app.ssh.insert_key = false
+
+    app.vm.provision "shell", inline: <<-SHELL
+      echo "vagrant:vagrant" | sudo chpasswd
+      sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+      sudo sed -i 's/ChallengeResponseAuthentication no ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config
+      sudo systemctl restart ssh
+
+      sudo apt update
+      sudo apt install -y openjdk-17-jdk maven git mysql-client-core-8.0
+      git config --global credential.helper store
+
+      # Создание пользователя appuser
+      sudo adduser --disabled-password --gecos "" appuser
+      echo "appuser ALL=(ALL) NOPASSWD:ALL" | sudo tee -a /etc/sudoers
+
+      # Клонирование репозитория
+      su - appuser -c "if [ ! -d /home/appuser/petclinic ]; then git clone https://github.com/Pavlovskyi-Andrii/petclinic.git /home/appuser/petclinic; fi"
+
+      # Установка прав на выполнение mvnw и сборка приложения
+      su - appuser -c "cd /home/appuser/petclinic/PetClinic && chmod +x mvnw && ./mvnw package"
+      if [ $? -ne 0 ]; then
+        echo "ERROR: Maven build failed!"
+        exit 1
+      fi
+
+      # Проверка наличия JAR-файла
+      JAR_FILE=$(ls /home/appuser/petclinic/PetClinic/target/*.jar 2>/dev/null)
+      if [ -z "$JAR_FILE" ]; then
+        echo "ERROR: JAR file not found! Build may have failed."
+        exit 1
+      fi
+
+      #Перемещение JAR-файла
+      # su - appuser -c "mv /home/appuser/petclinic/PetClinic/target/*.jar /home/appuser/petclinic/app.jar"
+
+      # Запуск приложения с правильными переменными
+      # su - appuser -c "nohup java -jar /home/appuser/petclinic/app.jar \
+      #   --spring.profiles.active=mysql \
+      #   --spring.datasource.url=jdbc:mysql://#{DB_HOST}:#{DB_PORT}/#{MYSQL_DB_NAME} \
+      #   --spring.datasource.username=#{MYSQL_USER} \
+      #   --spring.datasource.password=#{MYSQL_PASSWORD} \
+      #   > /home/appuser/petclinic/app.log 2>&1 &"
+
+      # su - appuser -c "mv /home/appuser/petclinic/PetClinic/target/*.jar /home/appuser/petclinic/app.jar"
+
+      # su - appuser -c "nohup java -jar /home/appuser/petclinic/app.jar \
+      # --spring.profiles.active=mysql \
+      # --spring.datasource.url=jdbc:mysql://#{ENV['DB_HOST']}:#{ENV['DB_PORT']}/#{ENV['MYSQL_DB_NAME']} \
+      # --spring.datasource.username=#{ENV['MYSQL_USER']} \
+      # --spring.datasource.password=#{ENV['MYSQL_PASSWORD']} \
+      # > /home/appuser/petclinic/app.log 2>&1 &"
+
+      # # # Run the application
+      # sudo su - appuser -c "nohup java -jar /home/appuser/petclinic/app.jar 
+      # --spring.profiles.active=mysql 
+      # --spring.datasource.url=jdbc:mysql://$DB_HOST:$DB_PORT/$DB_NAME 
+      # --spring.datasource.username=$DB_USER 
+      # --spring.datasource.password=$DB_PASS 
+      # > /home/appuser/petclinic/app.log 2>&1 &" 
+
+
+      # Проверка запуска приложения
+      sleep 5
+      if ps aux | grep -v grep | grep "java -jar /home/appuser/petclinic/app.jar" > /dev/null; then
+        echo "Application started successfully."
+      else
+        echo "ERROR: Application failed to start. Check /home/appuser/petclinic/app.log for details."
+        exit 1
+      fi
+    SHELL
+  end
+end
