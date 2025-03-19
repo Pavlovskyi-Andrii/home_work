@@ -35,6 +35,6 @@ print("Приклад тексту англійською:", EngAlphabet.example
 
 user_input = input("Введите букву: ")  # Запрос буквы у пользователя
 if engish_alpha.is_en_letter(user_input):
-    print(f"Буква '{user_input}' є в англійському абетці.")
+    print(f"Буква '{user_input}' є в англійському алфавіті.")
 else:
     print(f"Буква '{user_input}' відсутня в англійському алфавіті.")
