@@ -1,36 +1,39 @@
 
 1. Получение всех существующих пользователей:
 Статус: 200
-Пользователи: [{'age': '1', 'id': '1', 'name': 'John1', 'surname': 'Doe1'}, {'age': '2', 'id': '3', 'name': 'John2', 'surname': 'Doe2'}, {'age': '356апр5465', 'id': '6', 'name': 'John3443', 'surname': '75'}, {'age': '5', 'id': '7', 'name': 'John5', 'surname': 'Doe5'}]
+Пользователи: [{'age': '50', 'id': '1', 'name': 'Suichael', 'surname': 'Brown'}, {'age': '31', 'id': '2', 'name': 'name222', 'surname': 'surname222'}, {'age': '50', 'id': '3', 'name': 'Suichael', 'surname': 'Brown'}]
 
-2. Создание трех пользователей:
-Создан пользователь: {'age': '25', 'id': '8', 'name': 'John', 'surname': 'Doe'}
-Создан пользователь: {'age': '30', 'id': '9', 'name': 'Jane', 'surname': 'Smith'}
-Создан пользователь: {'age': '35', 'id': '10', 'name': 'Mike', 'surname': 'Johnson'}
+2. Створення трьох користувачів:
+Створено користувач: {'age': 'age111', 'id': '4', 'name': 'name111', 'surname': 'surname111'}
+Створено користувач: {'age': 'age222', 'id': '5', 'name': 'name222', 'surname': 'surname222'}
+Створено користувач: {'age': 'age333', 'id': '6', 'name': 'name333', 'surname': 'surname333'}
 
-3. Получение всех пользователей после создания:
+3. Отримання всіх користувачів після створення:
 Статус: 200
-Пользователи: [{'age': '1', 'id': '1', 'name': 'John1', 'surname': 'Doe1'}, {'age': '2', 'id': '3', 'name': 'John2', 'surname': 'Doe2'}, {'age': '356апр5465', 'id': '6', 'name': 'John3443', 'surname': '75'}, {'age': '5', 'id': '7', 'name': 'John5', 'surname': 'Doe5'}, {'age': '25', 'id': '8', 'name': 'John', 'surname': 'Doe'}, {'age': '30', 'id': '9', 'name': 'Jane', 'surname': 'Smith'}, {'age': '35', 'id': '10', 'name': 'Mike', 'surname': 'Johnson'}]
-
-4. Обновление возраста второго пользователя (ID: 9):
-Обновленный пользователь: {'age': '31', 'id': '9', 'name': 'Jane', 'surname': 'Smith'}
-
-5. Получение информации о втором пользователе (ID: 9):
-Пользователь: {'age': '31', 'id': '9', 'name': 'Jane', 'surname': 'Smith'}
-
-6. Полное обновление третьего пользователя (ID: 10):
-Обновленный пользователь: {'age': '40', 'id': '10', 'name': 'Michael', 'surname': 'Brown'}
-
-7. Получение информации о третьем пользователе (ID: 10):
-Пользователь: {'age': '40', 'id': '10', 'name': 'Michael', 'surname': 'Brown'}
-
-8. Получение всех пользователей:
+Користувачі: [{'age': '50', 'id': '1', 'name': 'Suichael', 'surname': 'Brown'}, {'age': '31', 'id': '2', 'name': 'name222', 'surname': 'surname222'}, {'age': '50', 'id': '3', 'name': 'Suichael', 'surname': 'Brown'}, {'age': 'age111', 'id': '4', 'name': 'name111', 'surname': 'surname111'}, {'age': 'age222', 'id': '5', 'name': 'name222', 'surname': 'surname222'}, {'age': 'age333', 'id': '6', 'name': 'name333', 'surname': 'surname333'}]
 Статус: 200
-Пользователи: [{'age': '1', 'id': '1', 'name': 'John1', 'surname': 'Doe1'}, {'age': '2', 'id': '3', 'name': 'John2', 'surname': 'Doe2'}, {'age': '356апр5465', 'id': '6', 'name': 'John3443', 'surname': '75'}, {'age': '5', 'id': '7', 'name': 'John5', 'surname': 'Doe5'}, {'age': '25', 'id': '8', 'name': 'John', 'surname': 'Doe'}, {'age': '31', 'id': '9', 'name': 'Jane', 'surname': 'Smith'}, {'age': '40', 'id': '10', 'name': 'Michael', 'surname': 'Brown'}]
 
-9. Удаление первого пользователя (ID: 8):
-Результат удаления: {'message': 'User deleted'}
-
-10. Получение всех пользователей после удаления:
+4. Оновлення віку другого користувача(ID: 5):
+Оновлений користувач: {'age': '31', 'id': '5', 'name': 'name222', 'surname': 'surname222'}
 Статус: 200
-Пользователи: [{'age': '1', 'id': '1', 'name': 'John1', 'surname': 'Doe1'}, {'age': '2', 'id': '3', 'name': 'John2', 'surname': 'Doe2'}, {'age': '356апр5465', 'id': '6', 'name': 'John3443', 'surname': '75'}, {'age': '5', 'id': '7', 'name': 'John5', 'surname': 'Doe5'}, {'age': '31', 'id': '9', 'name': 'Jane', 'surname': 'Smith'}, {'age': '40', 'id': '10', 'name': 'Michael', 'surname': 'Brown'}]
+
+5. Отримання інформації про другого користувача(ID: 5):
+Користувач: {'age': '31', 'id': '5', 'name': 'name222', 'surname': 'surname222'}
+
+6. Повне оновлення третього користувача(ID: 6):
+Оновлений користувач: {'age': '50', 'id': '6', 'name': 'Suichael', 'surname': 'Brown'}
+Статус: 200
+
+7. Отримання інформації про третього користувача(ID: 6):
+Користувач: {'age': '50', 'id': '6', 'name': 'Suichael', 'surname': 'Brown'}
+
+8. Отримання всіх користувачів:
+Статус: 200
+Пользователи: [{'age': '50', 'id': '1', 'name': 'Suichael', 'surname': 'Brown'}, {'age': '31', 'id': '2', 'name': 'name222', 'surname': 'surname222'}, {'age': '50', 'id': '3', 'name': 'Suichael', 'surname': 'Brown'}, {'age': 'age111', 'id': '4', 'name': 'name111', 'surname': 'surname111'}, {'age': '31', 'id': '5', 'name': 'name222', 'surname': 'surname222'}, {'age': '50', 'id': '6', 'name': 'Suichael', 'surname': 'Brown'}]
+
+9. Видалення першого користувача(ID: 4):
+Результат видалення:{'message': 'User deleted'}
+
+10. Отримання всіх користувачів після видалення:
+Статус: 200
+Користувачі: [{'age': '50', 'id': '1', 'name': 'Suichael', 'surname': 'Brown'}, {'age': '31', 'id': '2', 'name': 'name222', 'surname': 'surname222'}, {'age': '50', 'id': '3', 'name': 'Suichael', 'surname': 'Brown'}, {'age': '31', 'id': '5', 'name': 'name222', 'surname': 'surname222'}, {'age': '50', 'id': '6', 'name': 'Suichael', 'surname': 'Brown'}]
