@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .  # это будет указывать на текущую директорию, где находится Dockerfile
+    container_name: my-app
+    ports:
+      - "8000:8000"  # Пробрасываем порт приложения из контейнера
+    networks:
+      - my-network
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx-reverse-proxy
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf  # Загружаем конфигурацию nginx
+    ports:
+      - "8080:80"  # Прокидываем порт 8080 на хосте для nginx
+    depends_on:
+      - app  # Nginx будет зависеть от сервиса app
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge
