@@ -1,0 +1,34 @@
+- name: Install Jenkins on Jenkins Master
+  hosts: jenkins_master
+  become: true
+
+  tasks:
+    - name: Install Java (Jenkins dependency)
+      apt:
+        name: openjdk-17-jdk
+        state: present
+        update_cache: true
+
+    - name: Add Jenkins repository key
+      shell: |
+        curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | gpg --dearmor -o /usr/share/keyrings/jenkins.gpg
+      args:
+        creates: /usr/share/keyrings/jenkins.gpg
+
+    - name: Add Jenkins repository
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/jenkins.gpg] https://pkg.jenkins.io/debian-stable binary/"
+        state: present
+        filename: jenkins
+
+    - name: Install Jenkins
+      apt:
+        name: jenkins
+        state: present
+        update_cache: true
+
+    - name: Ensure Jenkins is running
+      systemd:
+        name: jenkins
+        enabled: true
+        state: started

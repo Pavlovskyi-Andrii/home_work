@@ -1,0 +1,41 @@
+# - name: Install Jenkins Agent (worker)
+#   hosts: jenkins_worker
+#   become: yes
+
+#   vars:
+#     jenkins_master_ip: "3.127.98.168"         # 👈 заміни на приватний IP Master
+#     node_name: "worker-1"                 # 👈 назва воркера в Jenkins
+#     node_secret: "3b82690189df76abb3dfb1b97965984428fedd9d7a0f930bbc926667489e871d"      # 👈з Jenkins UI
+
+#   tasks:
+#     - name: Install Java
+#       apt:
+#         name: openjdk-17-jdk
+#         state: present
+#         update_cache: yes
+
+#     - name: Create directory for Jenkins agent
+#       file:
+#         path: /opt/jenkins
+#         state: directory
+#         owner: ubuntu
+#         group: ubuntu
+#         mode: '0755'
+
+#     - name: Download agent.jar
+#       get_url:
+#         url: "http://{{ jenkins_master_ip }}:8080/jnlpJars/agent.jar"
+#         dest: /opt/jenkins/agent.jar
+#         mode: '0755'
+
+#     - name: Copy Jenkins agent systemd service
+#       template:
+#         src: files/jenkins-agent.service.j2
+#         dest: /etc/systemd/system/jenkins-agent.service
+
+#     - name: Reload systemd and start Jenkins agent
+#       systemd:
+#         name: jenkins-agent
+#         enabled: yes
+#         daemon_reload: yes
+#         state: started

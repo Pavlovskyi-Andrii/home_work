@@ -1,0 +1,12 @@
+[Unit]
+Description=Jenkins Agent
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/opt/jenkins
+ExecStart=/usr/bin/java -jar /opt/jenkins/agent.jar -jnlpUrl http://{{ jenkins_master_ip }}:8080/computer/{{ node_name }}/jenkins-agent.jnlp -secret {{ node_secret }} -workDir "/opt/jenkins"
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
