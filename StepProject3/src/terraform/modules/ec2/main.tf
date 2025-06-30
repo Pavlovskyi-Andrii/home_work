@@ -10,13 +10,17 @@ resource "aws_instance" "jenkins_master" {
   }
 }
 
-resource "aws_instance" "jenkins_worker" {
+resource "aws_spot_instance_request" "jenkins_worker" {
+  spot_price    = "0.03" 
+  instance_type = "t3.medium"
   ami                    = "ami-02003f9f0fde924ea" 
-  instance_type          = "t2.micro"
   subnet_id              = var.private_subnet_id
   vpc_security_group_ids = [var.security_group_id]
   key_name               = var.key_name
-  
+  wait_for_fulfillment   = true
+  spot_type              = "persistent"
+
+
   user_data = <<-EOF
               #!/bin/bash
               apt-get update -y
