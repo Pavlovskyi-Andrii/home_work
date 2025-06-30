@@ -1,0 +1,42 @@
+pipeline {
+    agent any 
+
+    environment {
+        IMAGE_NAME = "devasher/step_project2"
+        DOCKER_HUB_CREDENTIALS = 'dockerhub-creds-id' 
+    }
+
+    stages {
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh 'npm test'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("${IMAGE_NAME}:latest", ".")
+                }
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
+                    script {
+                        docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_HUB_CREDENTIALS}") {
+                            docker.image("${IMAGE_NAME}:latest").push()
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
