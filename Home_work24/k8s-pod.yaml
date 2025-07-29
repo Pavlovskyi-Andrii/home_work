@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: python-nazva-poda
+spec:
+  containers:
+    - name: python-random-container
+      image: devasher/python-random:latest
+      imagePullPolicy: Always

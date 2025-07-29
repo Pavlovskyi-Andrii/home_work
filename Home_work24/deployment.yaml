@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hw24-python-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hw24-python
+  template:
+    metadata:
+      labels:
+        app: hw24-python
+    spec:
+      containers:
+      - name: hw24-python
+        image: devasher/python-random
+        ports:
+        - containerPort: 8082
