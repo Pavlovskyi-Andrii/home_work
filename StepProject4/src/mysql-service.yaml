@@ -1,0 +1,17 @@
+# mysql-service.yaml
+# Service для внутреннего доступа к MySQL (только внутри кластера)
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service  # ← ЭТО ИМЯ использует Flask для подключения!
+  labels:
+    app: stepproject4
+spec:
+  type: ClusterIP  # Только внутренний доступ (безопасность)
+  ports:
+  - port: 3306        # Порт Service
+    targetPort: 3306  # Порт в MySQL контейнере
+    protocol: TCP
+  selector:
+    app: mysql  # Направляет трафик в Pod с лейблом app: mysql

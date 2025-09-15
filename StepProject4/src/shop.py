@@ -1,29 +1,28 @@
 from mysql_connector import Mysql
 
+class PetShop():
+    def __init__(self, host, user, pw, db_name=None):
+        self.mysql = Mysql(host, user, pw, db_name)
 
-class PetShop(Mysql):
     def create_shop(self):
-        query = "CREATE DATABASE IF NOT EXISTS shop"
-        self.query(query)
-        query = "USE shop"
-        self.query(query)
-        query = "CREATE TABLE IF NOT EXISTS pets (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), price INT)"
-        self.query(query)
+        query = """CREATE TABLE IF NOT EXISTS pets (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            price FLOAT NOT NULL
+        )"""
+        self.mysql.query(query)
 
     def add_item(self, name, price):
-        query = f"INSERT INTO pets (name, price) VALUES ('{name}', {price});"
-        self.query(query)
-        query = f"SELECT id, name FROM pets WHERE name='{name}'"
-        res = self.query(query)
-        ids = []
-        for id_name in res:
-            if id_name[1] == name:
-                ids.append(id_name[0])
-        return ids
+        self.mysql.query(f"INSERT INTO pets (name, price) VALUES ('{name}', {price})")
+        return self.mysql.mycursor.lastrowid
 
-    def delete_item(self, name):
-        query = f"DELETE FROM pets WHERE name='{name}';"
-        return self.query(query)
+    def delete_item_by_id(self, id):
+        self.mysql.query(f"DELETE FROM pets WHERE id={id}")
+        return self.mysql.mycursor.rowcount > 0
+
+    def get_all_items(self):
+        self.mysql.query("SELECT * FROM pets")
+        return self.mysql.mycursor.fetchall()
 
 from mysql_connector import Mysql
 

@@ -1,0 +1,19 @@
+# mysql-pvc.yaml
+# Persistent Volume Claim - запрос на хранилище для MySQL данных
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  labels:
+    app: mysql  # Изменено для совместимости с mysql-pv.yaml
+spec:
+  accessModes:
+  - ReadWriteOnce # Только один Pod может писать одновременно
+  resources:
+    requests:
+      storage: 1Gi # Запрашиваем 1GB дискового пространства
+  storageClassName: manual # Добавлено для совместимости с PV
+  selector:
+    matchLabels:
+      app: mysql # Селектор для привязки к mysql-pv

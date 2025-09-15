@@ -1,0 +1,85 @@
+services:
+  # Elasticsearch - база данных для логов
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+    container_name: elasticsearch
+    environment:
+      # Режим одиночного узла (не кластер)
+      - discovery.type=single-node
+      # Ограничение памяти Java
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      # Отключаем безопасность для простоты
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"  # Порт для API
+      - "9300:9300"  # Порт для внутренней коммуникации
+    volumes:
+      # Сохраняем данные, чтобы не потерять при перезапуске
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - efk-network
+    # Проверка здоровья сервиса
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Kibana - веб-интерфейс для просмотра логов
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.10
+    container_name: kibana
+    environment:
+      # Указываем адрес Elasticsearch
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"  # Порт для веб-интерфейса
+    networks:
+      - efk-network
+    depends_on:
+      elasticsearch:
+        condition: service_healthy  # Ждем пока Elasticsearch запустится
+
+  # Fluentd - сборщик логов
+  fluentd:
+    build: ./fluentd  # Собираем из нашего Dockerfile
+    container_name: fluentd
+    volumes:
+      # Монтируем конфигурацию
+      - ./fluentd/conf:/fluentd/etc
+    ports:
+      - "24224:24224"  # Порт для приема логов
+      - "24224:24224/udp"
+    networks:
+      - efk-network
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  # Node.js приложение
+  nodejs-app:
+    build: ./nodejs-app  # Собираем из нашего Dockerfile
+    container_name: nodejs-app
+    ports:
+      - "3000:3000"  # Порт приложения
+    networks:
+      - efk-network
+    depends_on:
+      - fluentd
+    # Настройка отправки логов в Fluentd
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        tag: nodejs.app
+        fluentd-async: "true"
+
+# Постоянные хранилища данных
+volumes:
+  elasticsearch-data:
+    driver: local
+
+# Внутренняя сеть для связи контейнеров
+networks:
+  efk-network:
+    driver: bridge

@@ -1,0 +1,18 @@
+# flask-service.yaml
+# Service для внешнего доступа к Flask приложению
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-service
+  labels:
+    app: stepproject4
+spec:
+  type: NodePort  # Доступ извне через порт узла
+  ports:
+  - port: 80         # Внутренний порт Service
+    targetPort: 5000 # Порт Flask контейнера
+    nodePort: 30000  # Внешний порт (доступен как localhost:30000)
+    protocol: TCP
+  selector:
+    app: flask  # Направляет трафик в Pod с лейблом app: flask

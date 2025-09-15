@@ -24,7 +24,7 @@ db_name = os.getenv('DB_NAME', 'mydb')
 #password = "12345qazwsxed"
 
 # Initialize PetShop
-petshop = PetShop(host, user, password)
+petshop = PetShop(host, user, password, db_name)
 petshop.create_shop()
 
 
@@ -93,3 +93,17 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
 
 
+@app.route('/health')
+def health_check():
+    """Health check endpoint для Kubernetes probes"""
+    try:
+        # Проверяем подключение к базе данных
+        pets = petshop.get_all_items()
+        return {'status': 'healthy', 'database': 'connected', 'pets_count': len(pets)}, 200
+    except Exception as e:
+        return {'status': 'unhealthy', 'error': str(e)}, 500
+
+@app.route('/ready')
+def readiness_check():
+    """Readiness probe endpoint"""
+    return {'status': 'ready'}, 200
