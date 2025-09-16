@@ -1,0 +1,54 @@
+groups:
+  - name: system_alerts
+    rules:
+      # Алерт при нехватке свободного места на диске < 15%
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 15
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Мало свободного места на диске"
+          description: "На диске {{ $labels.mountpoint }} осталось {{ $value | humanize }}% свободного места"
+
+      # Алерт при высокой загрузке CPU > 80%
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Высокая загрузка CPU"
+          description: "CPU загружен на {{ $value | humanize }}% на сервере {{ $labels.instance }}"
+
+      # Алерт при недоступности таргета
+      - alert: TargetDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Сервис недоступен"
+          description: "{{ $labels.job }} на {{ $labels.instance }} недоступен уже {{ $value }} минут"
+
+  - name: container_alerts
+    rules:
+      # Алерт при высоком использовании памяти контейнером
+      - alert: ContainerHighMemoryUsage
+        expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes) * 100 > 90
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Контейнер использует много памяти"
+          description: "Контейнер {{ $labels.name }} использует {{ $value | humanize }}% памяти"
+
+      # Алерт при остановке контейнера
+      - alert: ContainerKilled
+        expr: time() - container_last_seen > 60
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Контейнер остановлен"
+          description: "Контейнер {{ $labels.name }} был остановлен"

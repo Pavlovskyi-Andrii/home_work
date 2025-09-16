@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  # Prometheus - система сбора и хранения метрик
+  prometheus:
+    image: prom/prometheus:v2.45.0  # Конкретная версия вместо latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./src/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./src/monitoring/prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+  # AlertManager - обработка и отправка алертов
+  alertmanager:
+    image: prom/alertmanager:v0.25.0  # Конкретная версия
+    container_name: alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./src/monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - alertmanager_data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+      - '--web.route-prefix=/'
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+  # Grafana - визуализация метрик
+  grafana:
+    image: grafana/grafana:10.0.0  # Конкретная версия
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./src/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+  # Node Exporter - сбор системных метрик хоста
+  node-exporter:
+    image: prom/node-exporter:v1.6.0  # Конкретная версия
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+  # cAdvisor - мониторинг контейнеров
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.0  # Конкретная версия
+    container_name: cadvisor
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+    privileged: true
+    devices:
+      - /dev/kmsg
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+# Создаем сеть для всех сервисов
+networks:
+  monitoring:
+    driver: bridge
+
+# Создаем тома для постоянного хранения данных
+volumes:
+  prometheus_data:
+  grafana_data:
+  alertmanager_data:
