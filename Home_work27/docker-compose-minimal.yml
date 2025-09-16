@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # Сначала попробуем только Grafana (у неё меньше проблем с загрузкой)
+  grafana:
+    image: grafana/grafana:9.5.2  # Старая стабильная версия
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+  # Простой веб-сервер для тестирования
+  nginx:
+    image: nginx:alpine  # Очень легкий образ
+    container_name: test-nginx
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    driver: bridge
+
+volumes:
+  grafana_data:

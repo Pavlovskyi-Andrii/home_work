@@ -1,0 +1,39 @@
+# Глобальные настройки AlertManager
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alertmanager@yourdomain.com'
+
+# Маршрутизация алертов
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'telegram-notifications'
+
+# Получатели уведомлений
+receivers:
+  - name: 'telegram-notifications'
+    telegram_configs:
+      - bot_token: '8334654031:AAErg8R9Px6ZJ0I0_IVCFyXXj9IfUcpjVRg'  # Замени на токен своего бота
+        chat_id: 228076102       # Замени на ID чата
+        api_url: 'https://api.telegram.org'
+        parse_mode: 'HTML'
+        message: |
+          <b>🚨 АЛЕРТ: {{ .GroupLabels.alertname }}</b>
+          
+          <b>Статус:</b> {{ .Status }}
+          <b>Серьезность:</b> {{ .CommonLabels.severity }}
+          
+          {{ range .Alerts }}
+          <b>Описание:</b> {{ .Annotations.description }}
+          <b>Время:</b> {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+          {{ end }}
+
+# Подавление алертов (можно настроить дополнительно)
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'dev', 'instance']
